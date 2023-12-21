@@ -18,7 +18,9 @@ const HomeScreen = ({navigation}) => {
 
   return (
     <View className="flex-1 items-center justify-center px-5">
-      <ScrollView showsVerticalScrollIndicator={false} className="py-8 mb-7">
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        className="py-8 mb-7 flex-1">
         <View className="flex-row items-center justify-between w-[100%]">
           <Text
             style={{fontFamily: 'DMSans-Medium'}}

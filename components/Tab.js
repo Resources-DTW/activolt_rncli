@@ -1,13 +1,14 @@
-import {View, Text, TouchableOpacity, useWindowDimensions} from 'react-native';
+import {View, Text, TouchableOpacity} from 'react-native';
 import React, {useState} from 'react';
 
 const Tab = () => {
-  const [selected, setSelected] = useState([0]);
+  const [selected, setSelected] = useState(0);
 
   return (
     <View className="flex-1 items-center justify-center my-5">
-      <View className="flex-row items-center justify-between w-full">
+      <View className="flex-row items-center justify-between gap-4 px-[13%]">
         <TouchableOpacity
+          className="w-[40%]"
           style={
             selected === 0
               ? {
@@ -18,9 +19,14 @@ const Tab = () => {
               : {border: 'none'}
           }
           onPress={() => setSelected(0)}>
-          <Text>Discharge Enabled</Text>
+          <Text
+            style={{fontFamily: 'DMSans-Regular'}}
+            className="text-[18px] text-[#555555] text-center">
+            Discharge Enabled
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
+          className="w-[40%]"
           style={
             selected === 1
               ? {
@@ -31,9 +37,14 @@ const Tab = () => {
               : {border: 'none'}
           }
           onPress={() => setSelected(1)}>
-          <Text>Charge Enabled</Text>
+          <Text
+            style={{fontFamily: 'DMSans-Regular'}}
+            className="text-[18px] text-[#555555] text-center">
+            Charge Enabled
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
+          className="w-[40%]"
           style={
             selected === 2
               ? {
@@ -44,11 +55,15 @@ const Tab = () => {
               : {border: 'none'}
           }
           onPress={() => setSelected(2)}>
-          <Text>Device Balanced</Text>
+          <Text
+            style={{fontFamily: 'DMSans-Regular'}}
+            className="text-[18px] text-[#555555] text-center">
+            Device Balanced
+          </Text>
         </TouchableOpacity>
       </View>
       {selected === 0 && (
-        <View className="my-3">
+        <View className="my-3 w-full">
           <View className="bg-white w-full h-[42px] rounded-[10px] items-center justify-between px-4 my-1 flex-row">
             <Text
               style={{fontFamily: 'DMSans-Medium'}}

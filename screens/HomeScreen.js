@@ -1,6 +1,5 @@
 import {View, Text, TouchableOpacity, ScrollView} from 'react-native';
 import React from 'react';
-import {RadialSlider} from 'react-native-radial-slider';
 import Tab from '../components/Tab';
 import HomeHeader from '../components/HomeHeader';
 import DeviceInfo from '../components/DeviceInfo';

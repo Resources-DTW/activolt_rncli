@@ -38,7 +38,7 @@ const LoginScreen = ({navigation}) => {
           outlineColor="#00A66E"
           activeOutlineColor="#00A66E"
           value={serialNumber}
-          onChangeText={text => setSerialNumber(text)}
+          onChangeText={(text) => setSerialNumber(text)}
           textColor="#00A66E"
           outlineStyle={{borderRadius: 30}}
         />

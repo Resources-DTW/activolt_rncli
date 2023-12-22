@@ -9,7 +9,7 @@ import CellTemp from '../components/CellTemp';
 
 const soc = 55;
 
-const HomeScreen = ({navigation}) => {
+const HomeScreen = () => {
   return (
     <View className="flex-1 items-center justify-center px-5">
       <ScrollView

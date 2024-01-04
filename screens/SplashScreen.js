@@ -8,7 +8,7 @@ const SplashScreen = ({navigation}) => {
   }, 2000);
 
   return (
-    <View className="items-center justify-center flex-1">
+    <View className="items-center justify-center flex-1 bg-[#F8F8F8]">
       <Image
         source={SplashBG}
         resizeMode="contain"

@@ -4,8 +4,9 @@ import {
   Image,
   TouchableOpacity,
   KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import LoginBG from '../assets/loginbg.png';
 import LogoW from '../assets/logow.png';
 import {TextInput} from 'react-native-paper';

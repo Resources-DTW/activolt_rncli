@@ -3,30 +3,19 @@ import {
   Text,
   TouchableOpacity,
   SafeAreaView,
-  ScrollView,
   FlatList,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import LottieView from 'lottie-react-native';
 import {Path, Svg} from 'react-native-svg';
 import {BleManager} from 'react-native-ble-plx';
 
-// const devices = [
-//   {
-//     name: 'd1001',
-//     value: '3:17:223',
-//   },
-//   {
-//     name: 'd1002',
-//     value: '0:12:123',
-//   },
-//   {
-//     name: 'd1003',
-//     value: '2:09:667',
-//   },
-// ];
-
 // const isAndroid = Platform.OS === 'android';
+
+const SERVICE_UUID = '';
+const Char_UUID = '';
+
+const manager = new BleManager();
 
 const targetDevice = {
   name: 'AKT_BMS_V1P1',
@@ -48,71 +37,130 @@ const ScanScreen = ({navigation}) => {
   const [pair, setPair] = useState(false);
   const [devices, setDevices] = useState([]);
   const [uniqueDeviceKeys, setUniqueDeviceKeys] = useState(new Set());
+  const [connectionStatus, setConnectionStatus] = useState('Searching...');
+
+  const deviceRef = useRef(null);
 
   useEffect(() => {
-    const manager = new BleManager();
-
-    // const scanDevices = () => {
-    //   manager.startDeviceScan(null, null, (error, device) => {
-    //     if (error) {
-    //       console.error(error);
-    //       return;
-    //     }
-    //     if (
-    //       device.name === 'AKT_BMS_V1P1' ||
-    //       device.id === '24:62:AB:FD:31:4E'
-    //     ) {
-    //       manager.stopDeviceScan();
-    //       setDevices(device);
-    //       // connectToDevice(device);
-    //     }
-    //   });
-    // };
-    // scanDevices();
-
     const scanDevices = () => {
-      manager.startDeviceScan(null, null, (error, scannedDevice) => {
+      manager.startDeviceScan(null, null, (error, device) => {
         if (error) {
-          console.error('Error scanning:', error);
+          console.error(error);
+          setConnectionStatus('Error searching for device');
           return;
         }
-        if (scannedDevice) {
-          const deviceName = scannedDevice.localName || scannedDevice.name;
-
-          if (
-            deviceName !== null &&
-            !uniqueDeviceKeys.has(`${scannedDevice.id}-${deviceName}`)
-          ) {
-            setDevices((prevDevices) => [
-              ...prevDevices,
-              {id: scannedDevice.id, name: deviceName},
-            ]);
-
-            setUniqueDeviceKeys((prevKeys) =>
-              new Set(prevKeys).add(`${scannedDevice.id}-${deviceName}`),
-            );
-
-            if (deviceName === targetDevice.name) {
-              if (
-                targetDevice.profiles.every((profile) =>
-                  scannedDevice.serviceUUIDs.includes(profile),
-                )
-              ) {
-                setFoundDevice(scannedDevice);
-                manager.stopDeviceScan();
-              }
-            }
-          }
+        if (device.name === targetDevice.name) {
+          manager.stopDeviceScan();
+          setConnectionStatus('Connecting...');
+          setDevices(device);
+          // connectToDevice(device);
         }
       });
     };
-
     scanDevices();
 
-    return () => {
-      manager.stopDeviceScan();
-    };
+    //    const scanDevices = () => {
+    //      manager.startDeviceScan(null, null, (error, scannedDevice) => {
+    //        if (error) {
+    //          console.error('Error scanning:', error);
+    //          return;
+    //        }
+    //        if (scannedDevice) {
+    //          const deviceName = scannedDevice.localName || scannedDevice.name;
+    //
+    //          if (
+    //            deviceName !== null &&
+    //            !uniqueDeviceKeys.has(`${scannedDevice.id}-${deviceName}`)
+    //          ) {
+    //            setDevices((prevDevices) => [
+    //              ...prevDevices,
+    //              {id: scannedDevice.id, name: deviceName},
+    //            ]);
+    //
+    //            setUniqueDeviceKeys((prevKeys) =>
+    //              new Set(prevKeys).add(`${scannedDevice.id}-${deviceName}`),
+    //            );
+    //
+    //            if (deviceName === targetDevice.name) {
+    //              if (
+    //                targetDevice.profiles.every((profile) =>
+    //                  scannedDevice.serviceUUIDs.includes(profile),
+    //                )
+    //              ) {
+    //                setFoundDevice(scannedDevice);
+    //                manager.stopDeviceScan();
+    //              }
+    //            }
+    //          }
+    //        }
+    //      });
+    //    };
+    //
+    //    scanDevices();
+    //
+    //    return () => {
+    //      manager.stopDeviceScan();
+    //    };
   }, []);
+
+  // useEffect(() => {
+  //   const subscription = manager.onDeviceDisconnected(
+  //     devices,
+  //     (error, device) => {
+  //       if (error) {
+  //         console.log('Disconnected with error:', error);
+  //       }
+  //       setConnectionStatus('Disconnected');
+  //       console.log('Disconnected device');
+  //       setDevices([]);
+  //       if (deviceRef.current) {
+  //         setConnectionStatus('Reconnecting...');
+  //         connectToDevice(deviceRef.current).then(() =>
+  //           setConnectionStatus('Connected').catch((error) => {
+  //             console.log('Reconnection failed:', error);
+  //             setConnectionStatus('Reconnection failed');
+  //           }),
+  //         );
+  //       }
+  //     },
+  //   );
+  //   return () => subscription.remove();
+  // }, [devices]);
+
+  // const connectToDevice = (device) => {
+  //   return device
+  //     .connect()
+  //     .then((device) => {
+  //       setDevices(device.id);
+  //       setConnectionStatus('Connected');
+  //       return device.discoverAllServicesAndCharacteristics();
+  //     })
+  //     .then((device) => {
+  //       return device.services();
+  //     })
+  //     .then((services) => {
+  //       let service = services.find((service) => service.uuid === SERVICE_UUID);
+  //       return service.characteristics();
+  //     })
+  //     .then((characteristics) => {
+  //       let sensorValues = characteristics.find(
+  //         (char) => char.uuid === Char_UUID
+  //       );
+  //       setDevices(sensorValues);
+  //       sensorValues.monitor((error, char) => {
+  //         if (error) {
+  //           console.error(error);
+  //           return;
+  //         }
+  //         const rawSensordata = atob(char.value);
+  //         console.log("Received sensor datas:", rawSensordata);
+  //         setDevices(rawSensordata);
+  //       });
+  //     }).catch((error) => {
+  //       console.log(error);
+  //       setConnectionStatus("Error in connection")
+  //     })
+  // };
 
   const renderItem = ({item}) => (
     <View
@@ -183,6 +231,7 @@ const ScanScreen = ({navigation}) => {
           autoPlay
           loop
         />
+        <Text style={{fontFamily: 'DMSans-Regular'}}>{connectionStatus}</Text>
       </View>
       {foundDevice ? (
         <FlatList

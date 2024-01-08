@@ -5,7 +5,7 @@ import {
   SafeAreaView,
   FlatList,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import LottieView from 'lottie-react-native';
 import {Path, Svg} from 'react-native-svg';
 import {BleManager} from 'react-native-ble-plx';
@@ -14,8 +14,6 @@ import {BleManager} from 'react-native-ble-plx';
 
 const SERVICE_UUID = '';
 const Char_UUID = '';
-
-const manager = new BleManager();
 
 const targetDevice = {
   name: 'AKT_BMS_V1P1',
@@ -36,131 +34,113 @@ const ScanScreen = ({navigation}) => {
   const [foundDevice, setFoundDevice] = useState(false);
   const [pair, setPair] = useState(false);
   const [devices, setDevices] = useState([]);
-  const [uniqueDeviceKeys, setUniqueDeviceKeys] = useState(new Set());
+  // const [uniqueDeviceKeys, setUniqueDeviceKeys] = useState(new Set());
   const [connectionStatus, setConnectionStatus] = useState('Searching...');
 
-  const deviceRef = useRef(null);
+  const manager = new BleManager();
+
+  const scanForDevices = () => {
+    manager.startDeviceScan(null, null, (error, device) => {
+      if (error) {
+        console.error('Error scanning:', error);
+        setConnectionStatus('Error searching for device');
+        return;
+      }
+
+      if (device.name === targetDevice.name) {
+        manager.stopDeviceScan();
+        setDevices(device);
+        setConnectionStatus('Connecting...');
+        connectToDevice(device);
+      }
+    });
+  };
+
+  console.log(devices);
 
   useEffect(() => {
-    const scanDevices = () => {
-      manager.startDeviceScan(null, null, (error, device) => {
-        if (error) {
-          console.error(error);
-          setConnectionStatus('Error searching for device');
-          return;
-        }
-        if (device.name === targetDevice.name) {
-          manager.stopDeviceScan();
-          setConnectionStatus('Connecting...');
-          setDevices(device);
-          // connectToDevice(device);
-        }
-      });
-    };
-    scanDevices();
+    scanForDevices();
 
-    //    const scanDevices = () => {
-    //      manager.startDeviceScan(null, null, (error, scannedDevice) => {
-    //        if (error) {
-    //          console.error('Error scanning:', error);
-    //          return;
-    //        }
-    //        if (scannedDevice) {
-    //          const deviceName = scannedDevice.localName || scannedDevice.name;
-    //
-    //          if (
-    //            deviceName !== null &&
-    //            !uniqueDeviceKeys.has(`${scannedDevice.id}-${deviceName}`)
-    //          ) {
-    //            setDevices((prevDevices) => [
-    //              ...prevDevices,
-    //              {id: scannedDevice.id, name: deviceName},
-    //            ]);
-    //
-    //            setUniqueDeviceKeys((prevKeys) =>
-    //              new Set(prevKeys).add(`${scannedDevice.id}-${deviceName}`),
-    //            );
-    //
-    //            if (deviceName === targetDevice.name) {
-    //              if (
-    //                targetDevice.profiles.every((profile) =>
-    //                  scannedDevice.serviceUUIDs.includes(profile),
-    //                )
-    //              ) {
-    //                setFoundDevice(scannedDevice);
-    //                manager.stopDeviceScan();
-    //              }
-    //            }
-    //          }
-    //        }
-    //      });
-    //    };
-    //
-    //    scanDevices();
-    //
-    //    return () => {
-    //      manager.stopDeviceScan();
-    //    };
+    return () => {
+      manager.stopDeviceScan();
+    };
   }, []);
 
   // useEffect(() => {
-  //   const subscription = manager.onDeviceDisconnected(
-  //     devices,
-  //     (error, device) => {
+  //   const scanDevices = () => {
+  //     manager.startDeviceScan(null, null, (error, scannedDevice) => {
   //       if (error) {
-  //         console.log('Disconnected with error:', error);
+  //         console.error('Error scanning:', error);
+  //         setConnectionStatus('Error searching for device');
+  //         return;
   //       }
-  //       setConnectionStatus('Disconnected');
-  //       console.log('Disconnected device');
-  //       setDevices([]);
-  //       if (deviceRef.current) {
-  //         setConnectionStatus('Reconnecting...');
-  //         connectToDevice(deviceRef.current).then(() =>
-  //           setConnectionStatus('Connected').catch((error) => {
-  //             console.log('Reconnection failed:', error);
-  //             setConnectionStatus('Reconnection failed');
-  //           }),
-  //         );
-  //       }
-  //     },
-  //   );
-  //   return () => subscription.remove();
-  // }, [devices]);
+  //       if (scannedDevice) {
+  //         const deviceName = scannedDevice.localName || scannedDevice.name;
 
-  // const connectToDevice = (device) => {
-  //   return device
-  //     .connect()
-  //     .then((device) => {
-  //       setDevices(device.id);
-  //       setConnectionStatus('Connected');
-  //       return device.discoverAllServicesAndCharacteristics();
-  //     })
-  //     .then((device) => {
-  //       return device.services();
-  //     })
-  //     .then((services) => {
-  //       let service = services.find((service) => service.uuid === SERVICE_UUID);
-  //       return service.characteristics();
-  //     })
-  //     .then((characteristics) => {
-  //       let sensorValues = characteristics.find(
-  //         (char) => char.uuid === Char_UUID
-  //       );
-  //       setDevices(sensorValues);
-  //       sensorValues.monitor((error, char) => {
-  //         if (error) {
-  //           console.error(error);
-  //           return;
+  //         if (
+  //           deviceName !== null &&
+  //           !uniqueDeviceKeys.has(`${scannedDevice.id}-${deviceName}`)
+  //         ) {
+  //           setDevices((prevDevices) => [
+  //             ...prevDevices,
+  //             {id: scannedDevice.id, name: deviceName},
+  //           ]);
+
+  //           setUniqueDeviceKeys((prevKeys) =>
+  //             new Set(prevKeys).add(`${scannedDevice.id}-${deviceName}`),
+  //           );
+
+  //           if (deviceName === targetDevice.name) {
+  //             if (
+  //               targetDevice.profiles.every((profile) =>
+  //                 scannedDevice.serviceUUIDs.includes(profile),
+  //               )
+  //             ) {
+  //               setFoundDevice(scannedDevice);
+  //               manager.stopDeviceScan();
+  //               setConnectionStatus('Connecting...');
+  //             }
+  //           }
   //         }
-  //         const rawSensordata = atob(char.value);
-  //         console.log("Received sensor datas:", rawSensordata);
-  //         setDevices(rawSensordata);
-  //       });
-  //     }).catch((error) => {
-  //       console.log(error);
-  //       setConnectionStatus("Error in connection")
-  //     })
-  // };
+  //       }
+  //     });
+  //   };
+
+  //   scanDevices();
+
+  //   return () => {
+  //     manager.stopDeviceScan();
+  //   };
+  // }, []);
+
+  useEffect(() => {
+    const subscription = manager.onDeviceDisconnected(
+      targetDevice.macAddress,
+      (error, device) => {
+        if (error) {
+          console.error('Disconnected with error:', error);
+        }
+        setConnectionStatus('Disconnected');
+        console.log('Disconnected from device:', device.name);
+      },
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  const connectToDevice = (device) => {
+    device
+      .connect()
+      .then((device) => {
+        console.log('Connected to device:', device.name);
+        setConnectionStatus('Connected');
+      })
+      .catch((error) => {
+        console.error('Error connecting to device:', error);
+      });
+  };
 
   const renderItem = ({item}) => (
     <View
@@ -223,8 +203,7 @@ const ScanScreen = ({navigation}) => {
           Find your Bluetooth devices
         </Text>
       </View>
-      <View className="flex-1 items-center justify-center">
-        {/* <Text>Ble Scanner</Text> */}
+      <View className="flex-1 items-center justify-center mb-[20px]">
         <LottieView
           className="h-[350px] w-[350px] mt-[-70px]"
           source={require('../assets/sanner.json')}

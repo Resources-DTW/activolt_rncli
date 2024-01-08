@@ -6,7 +6,7 @@ export default function App() {
   const requestLocationPermission = async () => {
     try {
       const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATIONS,
+        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
         {
           title: 'Location permission for bluetooth scanning',
           message:
